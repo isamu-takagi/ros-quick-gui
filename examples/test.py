@@ -1,4 +1,9 @@
 #! /usr/bin/env python3
-import ros_quick_gui.main
+from std_msgs.msg import String
 
-ros_quick_gui.main.main()
+import ros_quick_gui.main
+from ros_quick_gui.widgets import TopicLabel
+
+label = TopicLabel(String, "/test/text")
+
+ros_quick_gui.main.main(label)
