@@ -1,9 +1,11 @@
 #! /usr/bin/env python3
-from std_msgs.msg import String
+from ros_quick_gui.widgets import Label, MatrixLayout, Topic
 
-import ros_quick_gui.main
-from ros_quick_gui.widgets import TopicLabel
 
-label = TopicLabel(String, "/test/text")
-
-ros_quick_gui.main.main(label)
+def generate_gui_settings():
+    layout = MatrixLayout()
+    layout << Label("AAA") << Topic("/test/text")
+    layout << Label("BBB") << Topic("/test/num")
+    layout << Label("CCC") << Topic("/test/num")
+    layout << Label("DDD")
+    return layout

@@ -1,0 +1,49 @@
+import collections
+import functools
+
+from rclpy.node import Node
+from rosidl_runtime_py.utilities import get_message
+
+
+class RclpyContext:
+    def __init__(self, node: Node):
+        self.__node = node
+        self.__subs = {}
+        self.__sub_waiting = {}
+        self.__sub_streams = collections.defaultdict(list)
+        self.__topic_find_timer = node.create_timer(1.0, self.__on_topic_find_timer)
+        self.__topic_find_cache = dict(node.get_topic_names_and_types())
+
+    def register_subscription(self, topic_type, topic_name, stream):
+        topic_type = self.__get_topic_type(topic_type, topic_name)
+        if topic_type:
+            self.__start_subscription(topic_type, topic_name, stream)
+        else:
+            self.__sub_waiting[stream] = topic_name
+
+    def __start_subscription(self, topic_type, topic_name, stream):
+        if topic_name not in self.__subs:
+            callback = functools.partial(self.__on_topic, topic_name=topic_name)
+            self.__subs[topic_name] = self.__node.create_subscription(topic_type, topic_name, callback, 1)
+        self.__sub_streams[topic_name].append(stream)
+
+    def __get_topic_type(self, topic_type, topic_name):
+        if topic_type is None:
+            types = self.__topic_find_cache.get(topic_name)
+            topic_type = types[0] if types else None
+        if type(topic_type) is str:
+            topic_type = get_message(topic_type)
+        return topic_type
+
+    def __on_topic(self, msg, topic_name):
+        self.__node.get_logger().info(f"{topic_name} {msg}")
+        for stream in self.__sub_streams[topic_name]:
+            stream._ros_callback(msg)
+
+    def __on_topic_find_timer(self):
+        self.__topic_find_cache = dict(self.__node.get_topic_names_and_types())
+        for stream, topic_name in list(self.__sub_waiting.items()):
+            topic_type = self.__get_topic_type(None, topic_name)
+            if topic_type:
+                self.__sub_waiting.pop(stream)
+                self.__start_subscription(topic_type, topic_name, stream)

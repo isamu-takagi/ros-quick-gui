@@ -9,7 +9,12 @@ readme = {file = "README.md", content-type = "text/markdown"}
 license = {file = "LICENSE"}
 dependencies = [
   "PyQt5",
+  "rclpy",
+  "rosidl_runtime_py",
 ]
+
+[project.scripts]
+ros-quick-gui = "ros_quick_gui.core.main:entry"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
