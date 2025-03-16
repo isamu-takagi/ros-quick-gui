@@ -10,7 +10,6 @@ def stream_setup(ros):
     from ros_quick_gui.core.graph.stream import SourceStream
 
     for stream in SourceStream._instances:
-        print(stream)
         stream._ros_setup(ros)
 
 
@@ -32,10 +31,6 @@ def main(widget):
 
 from argparse import ArgumentParser
 from importlib.util import module_from_spec, spec_from_file_location
-
-
-def test(root):
-    print(root)
 
 
 def entry():

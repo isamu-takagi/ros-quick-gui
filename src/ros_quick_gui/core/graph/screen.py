@@ -2,8 +2,6 @@ from abc import ABC, abstractmethod
 
 from PyQt5.QtWidgets import QLayout, QWidget
 
-from ros_quick_gui.core.graph.stream import RecvStream
-
 
 class Screen(ABC):
     def __init__(self):
@@ -26,7 +24,7 @@ class Screen(ABC):
         raise TypeError("Screen._qt")
 
 
-class NodeScreen(Screen):
+class ParentScreen(Screen):
     def __init__(self):
         super().__init__()
         self._children = []
@@ -37,8 +35,3 @@ class NodeScreen(Screen):
     def __lshift__(self, screen: Screen):
         self.add_child(screen)
         return screen
-
-
-class LeafScreen(Screen, RecvStream):
-    def __init__(self):
-        super().__init__()

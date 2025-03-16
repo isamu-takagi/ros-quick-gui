@@ -26,6 +26,7 @@ class RclpyContext:
             callback = functools.partial(self.__on_topic, topic_name=topic_name)
             self.__subs[topic_name] = self.__node.create_subscription(topic_type, topic_name, callback, 1)
         self.__sub_streams[topic_name].append(stream)
+        self.__node.get_logger().info(f"Start subscription of '{topic_name}'")
 
     def __get_topic_type(self, topic_type, topic_name):
         if topic_type is None:
@@ -36,7 +37,6 @@ class RclpyContext:
         return topic_type
 
     def __on_topic(self, msg, topic_name):
-        self.__node.get_logger().info(f"{topic_name} {msg}")
         for stream in self.__sub_streams[topic_name]:
             stream._ros_callback(msg)
 

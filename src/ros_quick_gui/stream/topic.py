@@ -1,4 +1,4 @@
-from ros_quick_gui.core.graph import SourceStream
+from ros_quick_gui.core.graph import SourceStream, StreamContext
 
 
 class Topic(SourceStream):
@@ -11,4 +11,4 @@ class Topic(SourceStream):
         ros.register_subscription(self.topic_type, self.topic_name, self)
 
     def _ros_callback(self, msg):
-        self._send(msg)
+        self._send(StreamContext(msg))
