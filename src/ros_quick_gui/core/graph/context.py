@@ -3,6 +3,9 @@ class StreamContext:
         self.value = value
         self.style = ScreenStyle()
 
+    def clone():
+        pass
+
 
 class ScreenStyle:
     def __init__(self):

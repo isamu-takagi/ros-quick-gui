@@ -15,9 +15,11 @@ class MatrixLayout(ParentScreen):
             screen = child._qt()
             ix, iy = self._index.next()
             layout.addWidget(screen, iy, ix)
+        layout.setRowStretch(2, 1)
         return layout
 
 
+# TODO: support direction
 class _MatrixIndex:
     def __init__(self, cols, rows):
         self.mx = cols or 2**31

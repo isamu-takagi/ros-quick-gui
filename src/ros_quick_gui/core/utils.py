@@ -1,4 +1,3 @@
-# from rosidl_runtime_py import set_message_fields
 # from rosidl_runtime_py import message_to_yaml
 
 

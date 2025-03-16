@@ -18,3 +18,9 @@ ros-quick-gui = "ros_quick_gui.core.main:entry"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
+
+[tool.isort]
+line_length = 160
+
+[tool.black]
+line-length = 160

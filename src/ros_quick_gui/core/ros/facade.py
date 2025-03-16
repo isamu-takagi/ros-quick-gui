@@ -5,17 +5,29 @@ from rclpy.node import Node
 from rosidl_runtime_py.utilities import get_message
 
 
-class RclpyContext:
+class RclpyNodeFacade:
     def __init__(self, node: Node):
         self.__node = node
+        self.__pubs = {}
         self.__subs = {}
         self.__sub_waiting = {}
         self.__sub_streams = collections.defaultdict(list)
         self.__topic_find_timer = node.create_timer(1.0, self.__on_topic_find_timer)
         self.__topic_find_cache = dict(node.get_topic_names_and_types())
 
+    def clock(self):
+        return self.__node.get_clock()
+
+    def register_publisher(self, topic_type, topic_name):
+        # TODO: Check topic type conflict.
+        topic_type = self.find_topic_type(topic_type, topic_name)
+        if topic_name not in self.__pubs:
+            self.__pubs[topic_name] = self.__node.create_publisher(topic_type, topic_name, 1)
+        return self.__pubs[topic_name]
+
     def register_subscription(self, topic_type, topic_name, stream):
-        topic_type = self.__get_topic_type(topic_type, topic_name)
+        # TODO: Check topic type conflict.
+        topic_type = self.find_topic_type(topic_type, topic_name)
         if topic_type:
             self.__start_subscription(topic_type, topic_name, stream)
         else:
@@ -28,7 +40,7 @@ class RclpyContext:
         self.__sub_streams[topic_name].append(stream)
         self.__node.get_logger().info(f"Start subscription of '{topic_name}'")
 
-    def __get_topic_type(self, topic_type, topic_name):
+    def find_topic_type(self, topic_type, topic_name):
         if topic_type is None:
             types = self.__topic_find_cache.get(topic_name)
             topic_type = types[0] if types else None
@@ -43,7 +55,7 @@ class RclpyContext:
     def __on_topic_find_timer(self):
         self.__topic_find_cache = dict(self.__node.get_topic_names_and_types())
         for stream, topic_name in list(self.__sub_waiting.items()):
-            topic_type = self.__get_topic_type(None, topic_name)
+            topic_type = self.find_topic_type(None, topic_name)
             if topic_type:
                 self.__sub_waiting.pop(stream)
                 self.__start_subscription(topic_type, topic_name, stream)

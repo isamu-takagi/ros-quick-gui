@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from copy import deepcopy
 
 from .context import StreamContext
 
@@ -13,13 +14,16 @@ class SendStream(Stream):
         super().__init__()
         self._outputs: list[RecvStream] = []
 
+    def __rshift__(self, recv: "RecvStream"):
+        self.add_dst(recv)
+        return recv
+
     def add_dst(self, recv: "RecvStream"):
         self._outputs.append(recv)
 
     def _send(self, context: StreamContext):
-        # TODO(Takagi, Isamu): Clone context if destination is not unique
         for output in self._outputs:
-            output._receive(context)
+            output._receive(deepcopy(context))
 
 
 class RecvStream(Stream):
@@ -35,19 +39,6 @@ class RecvStream(Stream):
         raise NotImplementedError("RecvStream._receive")
 
 
-# TODO(Takagi, Isamu): Rename RosStream or something.
-class SourceStream(SendStream):
-    _instances = []
-
-    def __init__(self):
-        super().__init__()
-        self.__class__._instances.append(self)
-
-    @abstractmethod
-    def _ros_setup(self, ros):
-        raise NotImplementedError("SourceStream._ros_setup")
-
-
 class BridgeStream(SendStream, RecvStream):
     def __init__(self):
         super().__init__()
@@ -59,3 +50,15 @@ class BridgeStream(SendStream, RecvStream):
     @abstractmethod
     def _process(self, context: StreamContext):
         raise NotImplementedError("RecvStream._receive")
+
+
+class RosStream(ABC):
+    _instances = []
+
+    def __init__(self):
+        super().__init__()
+        self.__class__._instances.append(self)
+
+    @abstractmethod
+    def _ros_setup(self, ros):
+        raise NotImplementedError("RosStream._ros_setup")

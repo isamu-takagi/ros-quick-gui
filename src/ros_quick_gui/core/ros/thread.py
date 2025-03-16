@@ -1,33 +1,13 @@
-import rclpy
-import rclpy.executors
 from PyQt5.QtCore import QObject, QThread, qDebug
-
-from .context import RclpyContext
-
-
-class RclpyManager:
-    def __init__(self, argv):
-        self.argv = argv
-
-    def init(self):
-        rclpy.init()
-        node = rclpy.create_node("ros_quick_gui")
-        self.context = RclpyContext(node)
-        self.thread = RclpyThread(node)
-
-    def exec(self):
-        self.thread.exec()
-
-    def quit(self):
-        self.thread.quit()
-        rclpy.shutdown()
+from rclpy.executors import SingleThreadedExecutor
+from rclpy.node import Node
 
 
 class RclpyWorker(QObject):
 
-    def __init__(self, node):
+    def __init__(self, node: Node):
         super().__init__()
-        self.exec = rclpy.executors.SingleThreadedExecutor()
+        self.exec = SingleThreadedExecutor()
         self.node = node
 
     def spin(self):
