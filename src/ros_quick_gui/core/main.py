@@ -7,10 +7,11 @@ from .window import MainWindow
 
 
 def stream_setup(ros):
-    from ros_quick_gui.core.graph.stream import RosStream
-
+    """
     for stream in RosStream._instances:
-        stream._ros_setup(ros)
+        stream._ros_setup(ros)"
+    """
+    pass
 
 
 def main(widget):
@@ -18,7 +19,7 @@ def main(widget):
     ros = RclpyManager(sys.argv)
 
     window = MainWindow()
-    window.setCentralWidget(widget._qt(True))
+    window.setCentralWidget(widget._qt_widget())
     window.show()
 
     ros.init()
@@ -33,15 +34,21 @@ from argparse import ArgumentParser
 from importlib.util import module_from_spec, spec_from_file_location
 
 
+def load_python_file(path: str):
+    spec = spec_from_file_location("ros_quick_gui.target", path)
+    module = module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def entry():
     parser = ArgumentParser()
     parser.add_argument("path")
+    parser.add_argument("--cli", action="store_true")
     args = parser.parse_args()
+    func = "generate_gui_settings"
 
-    spec = spec_from_file_location("ros_quick_gui.target", args.path)
-    module = module_from_spec(spec)
-    spec.loader.exec_module(module)
-    generate_gui_settings = getattr(module, "generate_gui_settings")
-
-    main(generate_gui_settings())
-    # test(generate_gui_settings())
+    module = load_python_file(args.path)
+    if not hasattr(module, func):
+        raise NameError(f"The function '{func}' not found")
+    main(getattr(module, func)())

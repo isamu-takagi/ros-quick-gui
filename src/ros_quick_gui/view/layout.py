@@ -1,13 +1,14 @@
 from PyQt5.QtWidgets import QGridLayout
 
-from ros_quick_gui.core.graph import ParentScreen
+from ros_quick_gui.core.graph import View
 
 
-class MatrixLayout(ParentScreen):
+class MatrixLayout(View):
 
     def __init__(self, *, cols: int = 0, rows: int = 0, dir: str = "RB"):
         super().__init__()
         self._index = _MatrixIndex(cols, rows)
+        self._children = []
 
     def _qt_setup(self):
         layout = QGridLayout()
@@ -17,6 +18,9 @@ class MatrixLayout(ParentScreen):
             layout.addWidget(screen, iy, ix)
         layout.setRowStretch(2, 1)
         return layout
+
+    def add(self, node):
+        self._children.append(node)
 
 
 # TODO: support direction
