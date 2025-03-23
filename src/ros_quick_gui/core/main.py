@@ -21,3 +21,7 @@ def entry():
     if not hasattr(module, func):
         raise NameError(f"The function '{func}' not found")
     run_gui(getattr(module, func)())
+
+
+def main(settings):
+    run_gui(settings)

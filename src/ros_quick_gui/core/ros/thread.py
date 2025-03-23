@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QObject, QThread, qDebug
+from PyQt5.QtCore import QObject, QThread
 from rclpy.executors import SingleThreadedExecutor
 from rclpy.node import Node
 
@@ -11,10 +11,8 @@ class RclpyWorker(QObject):
         self.node = node
 
     def spin(self):
-        qDebug("spin start")
         self.exec.add_node(self.node)
         self.exec.spin()
-        qDebug("spin end")
 
     def quit(self):
         self.exec.shutdown()
