@@ -1,5 +1,4 @@
 from abc import abstractmethod
-
 from ros_quick_gui.core.graph.node import GraphNode
 
 
@@ -35,3 +34,11 @@ class View(GraphNode):
     @classmethod
     def _shift_connect(cls, importer: "View", exporter: "View"):
         importer.add(exporter)
+
+
+class LeafView(View):
+    def __init__(self):
+        super().__init__()
+
+    def add(self, view):
+        raise TypeError(f"Cannot add '{view}' to LeafView")

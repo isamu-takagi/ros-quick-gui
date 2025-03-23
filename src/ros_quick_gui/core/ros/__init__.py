@@ -1,5 +1,4 @@
 import rclpy
-
 from .facade import RclpyNodeFacade
 from .thread import RclpyThread
 

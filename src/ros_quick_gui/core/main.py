@@ -1,37 +1,6 @@
-import sys
-
-from PyQt5.QtWidgets import QApplication
-
-from .ros import RclpyManager
-from .window import MainWindow
-
-
-def stream_setup(ros):
-    """
-    for stream in RosStream._instances:
-        stream._ros_setup(ros)"
-    """
-    pass
-
-
-def main(widget):
-    app = QApplication(sys.argv)
-    ros = RclpyManager(sys.argv)
-
-    window = MainWindow()
-    window.setCentralWidget(widget._qt_widget())
-    window.show()
-
-    ros.init()
-    stream_setup(ros.facade)
-    ros.exec()
-    ret = app.exec_()
-    ros.quit()
-    sys.exit(ret)
-
-
 from argparse import ArgumentParser
 from importlib.util import module_from_spec, spec_from_file_location
+from ros_quick_gui.core.runner.gui import run_gui
 
 
 def load_python_file(path: str):
@@ -51,4 +20,4 @@ def entry():
     module = load_python_file(args.path)
     if not hasattr(module, func):
         raise NameError(f"The function '{func}' not found")
-    main(getattr(module, func)())
+    run_gui(getattr(module, func)())

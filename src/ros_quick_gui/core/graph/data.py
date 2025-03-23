@@ -1,12 +1,12 @@
-class StreamContext:
+class DataContext:
     def __init__(self, value):
         self.value = value
-        self.style = ScreenStyle()
+        self.style = Stylesheet()
 
     def clone():
         pass
 
 
-class ScreenStyle:
+class Stylesheet:
     def __init__(self):
         pass

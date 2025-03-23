@@ -1,6 +1,5 @@
 from PyQt5.QtWidgets import QGridLayout
-
-from ros_quick_gui.core.graph import View
+from ros_quick_gui.core.graph.view import View
 
 
 class MatrixLayout(View):

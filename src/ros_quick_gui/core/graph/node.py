@@ -3,6 +3,9 @@ from abc import ABC, abstractmethod
 
 class GraphNode(ABC):
 
+    def __init__(self):
+        Graph._nodes.append(self)
+
     def __lshift__(l, r):
         return GraphUtils.lshift(l, r)
 
@@ -14,11 +17,6 @@ class GraphNode(ABC):
 
     def __rrshift__(r, l):
         return GraphUtils.rshift(l, r)
-
-    def __str__(self):
-        trace = getattr(self, "_value") if hasattr(self, "_value") else None
-        trace = f"({trace})" if trace else ""
-        return f"{self.__class__.__name__}{trace}"
 
     @classmethod
     @abstractmethod
@@ -41,10 +39,6 @@ class GraphChain:
     def __rshift__(self, node):
         return GraphUtils.rshift(self, node)
 
-    @classmethod
-    def build(cls, node):
-        return node if isinstance(node, cls) else cls([node])
-
     @property
     def left(self):
         return self.nodes[0]
@@ -58,23 +52,25 @@ class GraphUtils:
 
     @classmethod
     def lshift(cls, l, r):
-        l = GraphChain.build(GraphUtils.normalize(l))
-        r = GraphChain.build(GraphUtils.normalize(r))
-        GraphUtils.connect(l.right, r.left)
+        l = cls.normalize_operand(l)
+        r = cls.normalize_operand(r)
+        cls.connect(l.right, r.left)
         return GraphChain(l.nodes + r.nodes)
 
     @classmethod
     def rshift(cls, l, r):
-        l = GraphChain.build(GraphUtils.normalize(l))
-        r = GraphChain.build(GraphUtils.normalize(r))
-        GraphUtils.connect(r.left, l.right)
+        l = cls.normalize_operand(l)
+        r = cls.normalize_operand(r)
+        cls.connect(r.left, l.right)
         return GraphChain(l.nodes + r.nodes)
 
     @classmethod
-    def normalize(cls, node):
-        if isinstance(node, GraphNode):
-            return node
-        raise TypeError(f"The '{type(node).__name__}' type value '{node}' is not a GraphNode")
+    def normalize_operand(cls, target):
+        if isinstance(target, GraphChain):
+            return target
+        if isinstance(target, GraphNode):
+            return GraphChain([target])
+        raise TypeError(f"The '{type(target).__name__}' type '{target}' is not a graph element")
 
     @classmethod
     def connect(cls, importer, exporter):
@@ -87,3 +83,15 @@ class GraphUtils:
         b = b.__class__.__mro__
         c = set(a) & set(b)
         return next(x for x in a if x in c)
+
+
+class Graph:
+
+    _nodes = []
+    _links = []
+
+    @classmethod
+    def nodes(cls, base=GraphNode):
+        for node in cls._nodes:
+            if isinstance(node, base):
+                yield node

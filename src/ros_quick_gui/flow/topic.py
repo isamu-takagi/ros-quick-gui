@@ -1,5 +1,4 @@
 from rosidl_runtime_py import set_message_fields
-
 from ros_quick_gui.core.graph import RecvStream, RosStream, SendStream, StreamContext
 from ros_quick_gui.core.ros import RclpyNodeFacade
 

@@ -1,5 +1,4 @@
 from PyQt5.QtWidgets import QPushButton
-
 from ros_quick_gui.core.graph import Screen, SendStream, StreamContext
 
 

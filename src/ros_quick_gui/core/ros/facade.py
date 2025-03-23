@@ -1,19 +1,26 @@
 import collections
 import functools
-
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from rclpy.node import Node
+from rclpy.timer import Timer
 from rosidl_runtime_py.utilities import get_message
 
 
 class RclpyNodeFacade:
     def __init__(self, node: Node):
         self.__node = node
+        self.__timer = RclpyTimerFacade(node)
         self.__pubs = {}
         self.__subs = {}
         self.__sub_waiting = {}
         self.__sub_streams = collections.defaultdict(list)
         self.__topic_find_timer = node.create_timer(1.0, self.__on_topic_find_timer)
         self.__topic_find_cache = dict(node.get_topic_names_and_types())
+
+    @property
+    def timer(self):
+        return self.__timer
 
     def clock(self):
         return self.__node.get_clock()
@@ -59,3 +66,25 @@ class RclpyNodeFacade:
             if topic_type:
                 self.__sub_waiting.pop(stream)
                 self.__start_subscription(topic_type, topic_name, stream)
+
+
+class RclpySetup(ABC):
+    def __init__(self):
+        super().__init__()
+
+    @abstractmethod
+    def _ros_setup(self, ros: RclpyNodeFacade):
+        raise NotImplementedError("RclpySetup._ros_setup")
+
+
+class RclpyTimerFacade:
+    def __init__(self, node: Node):
+        self.node = node
+        self.__timers = {}
+
+    def create(self, sec: float, callback: callable):
+        timer = self.__timers.get(callback)
+        if timer:
+            raise Exception("This timer is already created.")
+        timer = self.node.create_timer(sec, callback)
+        self.__timers[callback] = timer
